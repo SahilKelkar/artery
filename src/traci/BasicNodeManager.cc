@@ -6,6 +6,7 @@
 #include "traci/VariableCache.h"
 #include "traci/VehicleSink.h"
 #include <inet/common/ModuleAccess.h>
+#include <iostream>
 
 using namespace omnetpp;
 
@@ -85,6 +86,7 @@ void BasicNodeManager::traciStep()
     const auto& departed = sim_cache->get<VAR_DEPARTED_VEHICLES_IDS>();
     EV_DETAIL << "TraCI: " << departed.size() << " vehicles departed" << endl;
     for (const auto& id : departed) {
+	std::cout << "BasicNodeManager::traciStep()->addVehicle" << std::endl;
         addVehicle(id);
     }
 
@@ -112,6 +114,7 @@ void BasicNodeManager::traciClose()
 
 void BasicNodeManager::addVehicle(const std::string& id)
 {
+std::cout << "BasicNodeManager::addVehicle: " << id.c_str() << std::endl;
     NodeInitializer init = [this, &id](cModule* module) {
         VehicleSink* vehicle = getVehicleSink(module);
         auto& traci = m_api->vehicle();
@@ -157,6 +160,8 @@ cModule* BasicNodeManager::createModule(const std::string&, cModuleType* type)
 
 cModule* BasicNodeManager::addNodeModule(const std::string& id, cModuleType* type, NodeInitializer& init)
 {
+
+std::cout << "BasicNodeManager::addNodeModule: " << id.c_str() << std::endl;
     cModule* module = createModule(id, type);
     module->finalizeParameters();
     module->buildInside();

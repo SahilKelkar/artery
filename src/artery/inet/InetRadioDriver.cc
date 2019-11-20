@@ -12,7 +12,9 @@
 #include <inet/linklayer/common/MacAddressTag_m.h>
 #include <inet/linklayer/common/UserPriorityTag_m.h>
 #include <inet/linklayer/ieee80211/mac/Ieee80211Mac.h>
+#include <inet/linklayer/ethernet/EtherMac.h>
 #include <mutex>
+#include <iostream>
 
 using namespace omnetpp;
 
@@ -51,9 +53,11 @@ void InetRadioDriver::initialize(int stage)
 {
 	if (stage == inet::INITSTAGE_LOCAL) {
 		RadioDriverBase::initialize();
+		std::cout << "InetRadioDriver::initialize(inet::INITSTAGE_LOCAL)" << std::endl;
 		cModule* host = inet::getContainingNode(this);
-		mLinkLayer = inet::findModuleFromPar<inet::ieee80211::Ieee80211Mac>(par("macModule"), host);
-		mLinkLayer->subscribe(VanetRx::ChannelLoadSignal, this);
+		//mLinkLayer = inet::findModuleFromPar<inet::ieee80211::Ieee80211Mac>(par("macModule"), host);
+		mLinkLayer = inet::findModuleFromPar<inet::EtherMac>(par("macModule"), host);
+		//mLinkLayer->subscribe(RadioDriverBase::ChannelLoadSignal, this);
 
 		// we were allowed to call addProtocol each time but call_once makes more sense to me
 		std::call_once(register_protocol_flag, []() {
@@ -61,13 +65,14 @@ void InetRadioDriver::initialize(int stage)
 		});
 	} else if (stage == inet::InitStages::INITSTAGE_LINK_LAYER_2) {
 		auto properties = new RadioDriverProperties();
-		properties->LinkLayerAddress = convert(mLinkLayer->getAddress());
+		//properties->LinkLayerAddress = convert(mLinkLayer->getAddress());
 		indicateProperties(properties);
 	}
 }
 
 void InetRadioDriver::receiveSignal(cComponent* source, simsignal_t signal, double value, cObject*)
 {
+std::cout << "InetRadioDriver::receiveSignal" << std::endl;
 	if (signal == VanetRx::ChannelLoadSignal) {
 		emit(RadioDriverBase::ChannelLoadSignal, value);
 	}
@@ -76,6 +81,7 @@ void InetRadioDriver::receiveSignal(cComponent* source, simsignal_t signal, doub
 void InetRadioDriver::handleMessage(cMessage* msg)
 {
 	if (msg->getArrivalGate() == gate("lowerLayerIn")) {
+		std::cout << "InetRadioDriver::handleMessage" << std::endl;
 		handleDataIndication(msg);
 	} else {
 		RadioDriverBase::handleMessage(msg);
@@ -98,15 +104,19 @@ void InetRadioDriver::handleDataRequest(cMessage* msg)
 	auto up_tag = packet->addTag<inet::UserPriorityReq>();
 	switch (request->access_category) {
 		case vanetza::AccessCategory::VO:
+			std::cout << "InetRadioDriver::handleDataRequest:: VO" << std::endl;
 			up_tag->setUserPriority(7);
 			break;
 		case vanetza::AccessCategory::VI:
+			std::cout << "InetRadioDriver::handleDataRequest:: VI" << std::endl;
 			up_tag->setUserPriority(5);
 			break;
 		case vanetza::AccessCategory::BE:
+			std::cout << "InetRadioDriver::handleDataRequest:: BE" << std::endl;			
 			up_tag->setUserPriority(3);
 			break;
 		case vanetza::AccessCategory::BK:
+			std::cout << "InetRadioDriver::handleDataRequest:: BK" << std::endl;
 			up_tag->setUserPriority(1);
 			break;
 		default:

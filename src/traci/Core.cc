@@ -22,16 +22,19 @@ namespace traci
 
 Core::Core() : m_traci(new API()), m_lite(new LiteAPI(*m_traci)), m_subscriptions(nullptr)
 {
+std::cout << "Core::Core()" << std::endl;
 }
 
 Core::~Core()
 {
+	std::cout << "Core::~Core()" << std::endl;
     cancelAndDelete(m_connectEvent);
     cancelAndDelete(m_updateEvent);
 }
 
 void Core::initialize()
 {
+	std::cout << "Core::initialize()" << std::endl;
     m_connectEvent = new cMessage("connect TraCI");
     m_updateEvent = new cMessage("TraCI step");
     cModule* manager = getParentModule();
@@ -43,6 +46,7 @@ void Core::initialize()
 
 void Core::finish()
 {
+	std::cout << "Core::finish()" << std::endl;
     emit(closeSignal, simTime());
     if (!m_connectEvent->isScheduled()) {
         m_traci->close();
@@ -51,6 +55,7 @@ void Core::finish()
 
 void Core::handleMessage(cMessage* msg)
 {
+	std::cout << "Core::handleMessage()" << std::endl;
     if (msg == m_updateEvent) {
         m_traci->simulationStep();
         if (m_subscriptions) {
@@ -73,6 +78,7 @@ void Core::handleMessage(cMessage* msg)
 
 void Core::checkVersion()
 {
+	std::cout << "Core::checkVersion()" << std::endl;
     int expected = par("version");
     if (expected == 0) {
         expected = constants::TRACI_VERSION;

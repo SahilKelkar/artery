@@ -95,6 +95,7 @@ void Storyboard::handleMessage(cMessage * msg)
 void Storyboard::receiveSignal(cComponent* source, simsignal_t signalId, const char* nodeId, cObject* node)
 {
     if (signalId == traciAddNodeSignal) {
+	std::cout << "Storyboard::receiveSignal:: addnode"  << std::endl;
         cModule* nodeModule = dynamic_cast<cModule*>(node);
         artery::Middleware* appl = inet::findModuleFromPar<artery::Middleware>(par("middlewareModule"), nodeModule, false);
         if (appl) {

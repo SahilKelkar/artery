@@ -1,5 +1,6 @@
 #include "traci/Listener.h"
 #include <omnetpp/ccomponent.h>
+#include <iostream>
 
 using namespace omnetpp;
 
@@ -22,7 +23,7 @@ Listener::Listener() : m_publisher(nullptr)
 void Listener::subscribeTraCI(cComponent* publisher)
 {
     ASSERT(publisher);
-
+std::cout << "(artery/src/traci)Listener::subscribeTraCI" << std::endl;
     unsubscribeTraCI();
     m_publisher = publisher;
     m_publisher->subscribe(initSignal, this);
@@ -42,6 +43,7 @@ void Listener::unsubscribeTraCI()
 void Listener::receiveSignal(cComponent*, simsignal_t signal, const SimTime&, cObject*)
 {
     if (signal == stepSignal) {
+	std::cout << "Listener::receiveSignal: stepSignal" << std::endl;
         traciStep();
     } else if (signal == initSignal) {
         traciInit();

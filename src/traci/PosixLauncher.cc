@@ -53,20 +53,28 @@ BlockSignal::~BlockSignal()
 
 PosixLauncher::PosixLauncher() : m_pid(0)
 {
+std::cout << "PosixLauncher::PosixLauncher()" << std::endl;
 }
 
 PosixLauncher::~PosixLauncher()
 {
+	std::cout << "PosixLauncher::~PosixLauncher()" << std::endl;
     kill();
 }
 
 void PosixLauncher::initialize()
 {
+std::cout << "PosixLauncher::initialize" << std::endl;
     m_executable = par("sumo").stringValue();
     m_command = par("command").stringValue();
     m_sumocfg = par("sumocfg").stringValue();
     m_port = par("port");
     m_seed = par("seed");
+std::cout << "m_executable: " << m_executable << std::endl;
+std::cout << "m_command: " << m_command << std::endl;
+std::cout << "m_sumocfg: " << m_sumocfg << std::endl;
+std::cout << "m_port: " << m_port << std::endl;
+std::cout << "m_seed: " << m_seed << std::endl;
 }
 
 void PosixLauncher::finish()
@@ -76,6 +84,7 @@ void PosixLauncher::finish()
 
 ServerEndpoint PosixLauncher::launch()
 {
+	std::cout<< "PosixLauncher::launch()" << std::endl;
     if (m_port == 0) {
         m_port = lookupPort();
     }
@@ -114,6 +123,7 @@ ServerEndpoint PosixLauncher::launch()
 
 void PosixLauncher::kill()
 {
+std::cout<< "PosixLauncher::kill()" << std::endl;
     if (m_pid != 0) {
         ::kill(m_pid, SIGINT);
         m_pid = 0;
@@ -124,6 +134,7 @@ void PosixLauncher::kill()
 
 std::string PosixLauncher::command()
 {
+	std::cout<< "PosixLauncher::command()" << std::endl;
     std::regex executable("%SUMO%");
     std::regex sumocfg("%SUMOCFG%");
     std::regex port("%PORT%");

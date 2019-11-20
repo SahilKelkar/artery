@@ -16,6 +16,7 @@
 #include <omnetpp/cxmlelement.h>
 #include <vanetza/asn1/denm.hpp>
 #include <vanetza/btp/ports.hpp>
+#include <iostream>
 
 using namespace omnetpp;
 
@@ -34,6 +35,7 @@ DenService::DenService() :
 
 void DenService::initialize()
 {
+	std::cout << "DenService::initialize()" << std::endl;
     ItsG5BaseService::initialize();
     mTimer = &getFacilities().get_const<Timer>();
     mMemory.reset(new artery::den::Memory(*mTimer));
@@ -44,6 +46,7 @@ void DenService::initialize()
 
 void DenService::initUseCases()
 {
+	std::cout << "DenService::initUseCases()" << std::endl;
     omnetpp::cXMLElement* useCases = par("useCases").xmlValue();
     for (omnetpp::cXMLElement* useCaseElement : useCases->getChildrenByTagName("usecase")) {
         omnetpp::cModuleType* useCaseType = omnetpp::cModuleType::get(useCaseElement->getAttribute("type"));
@@ -72,6 +75,7 @@ void DenService::initUseCases()
 void DenService::receiveSignal(cComponent*, simsignal_t signal, cObject* obj, cObject*)
 {
     if (signal == storyboardSignal) {
+	std::cout << "DenService::receiveSignal()" << std::endl;
         StoryboardSignal* storyboardSignalObj = check_and_cast<StoryboardSignal*>(obj);
         for (auto& use_case : mUseCases) {
             use_case.handleStoryboardTrigger(*storyboardSignalObj);
@@ -81,6 +85,7 @@ void DenService::receiveSignal(cComponent*, simsignal_t signal, cObject* obj, cO
 
 void DenService::indicate(const vanetza::btp::DataIndication& indication, std::unique_ptr<vanetza::UpPacket> packet)
 {
+	std::cout << "DenService::indicate()" << std::endl;
     Asn1PacketVisitor<vanetza::asn1::Denm> visitor;
     const vanetza::asn1::Denm* denm = boost::apply_visitor(visitor, *packet);
     const auto egoStationID = getFacilities().get_const<VehicleDataProvider>().station_id();
@@ -98,6 +103,7 @@ void DenService::indicate(const vanetza::btp::DataIndication& indication, std::u
 
 void DenService::trigger()
 {
+std::cout << "DenService::trigger()" << std::endl;
     mMemory->drop();
 
     for (auto& use_case : mUseCases) {
@@ -125,6 +131,7 @@ std::shared_ptr<const den::Memory> DenService::getMemory() const
 
 void DenService::sendDenm(vanetza::asn1::Denm&& message, vanetza::btp::DataRequestB& request)
 {
+	std::cout << "DenService::sendDenm()" << std::endl;
     fillRequest(request);
 
     using namespace vanetza;

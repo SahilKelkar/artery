@@ -19,7 +19,6 @@
 /****************************************************************************/
 
 
-// ===========================================================================
 // included modules
 // ===========================================================================
 #include <config.h>
@@ -45,6 +44,7 @@ TraCIAPI::TraCIAPI()
       simulation(*this), trafficlights(*this),
       vehicle(*this), vehicletype(*this),
       mySocket(0) {
+	std::cout << "TraCIAPI::TraCIAPI()" << std::endl;
     myDomains[RESPONSE_SUBSCRIBE_EDGE_VARIABLE] = &edge;
     myDomains[RESPONSE_SUBSCRIBE_GUI_VARIABLE] = &gui;
     myDomains[RESPONSE_SUBSCRIBE_JUNCTION_VARIABLE] = &junction;
@@ -925,6 +925,7 @@ TraCIAPI::InductionLoopScope::getTimeSinceDetection(const std::string& loopID) c
 
 std::vector<libsumo::TraCIVehicleData>
 TraCIAPI::InductionLoopScope::getVehicleData(const std::string& loopID) const {
+std::cout << "InductionLoopScope::getVehicleData" << std::endl;
     tcpip::Storage inMsg;
     myParent.send_commandGetVariable(CMD_GET_INDUCTIONLOOP_VARIABLE, LAST_STEP_VEHICLE_DATA, loopID);
     myParent.processGET(inMsg, CMD_GET_INDUCTIONLOOP_VARIABLE, TYPE_COMPOUND);
@@ -2534,6 +2535,7 @@ TraCIAPI::VehicleScope::add(const std::string& vehicleID,
     if (depart == "-1") {
         depart = toString(myParent.simulation.getCurrentTime() / 1000.0);
     }
+	std::cout << "TraCIAPI::VehicleScope::add: " << vehicleID.c_str()	 << std::endl;
     tcpip::Storage content;
     content.writeUnsignedByte(TYPE_COMPOUND);
     content.writeInt(14);

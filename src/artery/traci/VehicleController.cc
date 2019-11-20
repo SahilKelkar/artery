@@ -13,6 +13,7 @@ namespace traci
 VehicleController::VehicleController(const std::string& id, traci::LiteAPI& api) :
     VehicleController(id, api, std::make_shared<VehicleCache>(api, id))
 {
+	std::cout << "VehicleController::VehicleController: " << id << std::endl;
 }
 
 VehicleController::VehicleController(std::shared_ptr<VehicleCache> cache) :
@@ -24,6 +25,7 @@ VehicleController::VehicleController(const std::string& id, traci::LiteAPI& api,
     m_id(id), m_api(api), m_boundary(api.simulation().getNetBoundary()),
     m_type(api.vehicle().getTypeID(id), api), m_cache(cache)
 {
+	std::cout << "VehicleController::VehicleController: " << id << std::endl;
 }
 
 const std::string& VehicleController::getVehicleId() const

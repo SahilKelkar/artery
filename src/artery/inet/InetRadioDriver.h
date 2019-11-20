@@ -1,14 +1,14 @@
-#ifndef INETRADIODRIVER_H_PJFDM4JW
+	#ifndef INETRADIODRIVER_H_PJFDM4JW
 #define INETRADIODRIVER_H_PJFDM4JW
 
 #include <artery/nic/RadioDriverBase.h>
 #include <omnetpp/clistener.h>
 
+
 // forward declaration
 namespace inet {
-namespace ieee80211 {
-class Ieee80211Mac;
-} // namespace ieee80211
+class EtherMac;
+
 } // namespace inet
 
 namespace artery
@@ -27,7 +27,7 @@ class InetRadioDriver : public RadioDriverBase, public omnetpp::cListener
         void handleDataRequest(omnetpp::cMessage*) override;
 
     private:
-        inet::ieee80211::Ieee80211Mac* mLinkLayer = nullptr;
+        inet::EtherMac* mLinkLayer = nullptr;
 };
 
 } // namespace artery

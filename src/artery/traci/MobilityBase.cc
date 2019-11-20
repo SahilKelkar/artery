@@ -1,5 +1,6 @@
 #include "artery/traci/MobilityBase.h"
 #include <omnetpp/ccomponent.h>
+#include <iostream>
 
 using namespace traci;
 
@@ -10,6 +11,7 @@ omnetpp::simsignal_t MobilityBase::stateChangedSignal = omnetpp::cComponent::reg
 
 void MobilityBase::initializeSink(LiteAPI* api, const std::string& id, const Boundary& boundary, std::shared_ptr<VehicleCache> cache)
 {
+	std::cout << "MobilityBase::initializeSink" << std::endl;
     ASSERT(api);
     ASSERT(cache);
     ASSERT(cache->getVehicleId() == id);
@@ -22,6 +24,7 @@ void MobilityBase::initializeSink(LiteAPI* api, const std::string& id, const Bou
 
 void MobilityBase::initializeVehicle(const TraCIPosition& traci_pos, TraCIAngle traci_heading, double traci_speed)
 {
+std::cout << "MobilityBase::initializeVehicle" << std::endl;
     const auto opp_pos = position_cast(mNetBoundary, traci_pos);
     const auto opp_angle = angle_cast(traci_heading);
     initialize(opp_pos, opp_angle, traci_speed);
