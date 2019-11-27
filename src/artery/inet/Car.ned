@@ -4,6 +4,7 @@ import artery.application.VehicleMiddleware;
 import artery.networking.Vanetza;
 import artery.nic.IRadioDriver;
 import inet.node.inet.INetworkNode;
+import inet.node.inet.StandardHostEx;
 import inet.linklayer.contract.IWiredInterface;
 import inet.mobility.contract.IMobility;
 import inet.networklayer.common.InterfaceTable;
@@ -23,7 +24,7 @@ module Car extends PlainVehicle like INetworkNode
 	int numRadios = default(1);
 
     gates:
-        //input radioIn[numRadios] @directIn;
+        input radioIn[numRadios] @directIn;
         inout pppg[] @labels(PPPFrame-conn);
         inout ethg[] @labels(EtherFrame-conn);
 
@@ -33,17 +34,49 @@ module Car extends PlainVehicle like INetworkNode
                 @display("p=50,300");
         }
 
-        wlan: <default("EtherNic")> like IWiredInterface {
-            parameters:
-                @display("p=250,400,row,100;q=queue");
-		encap.fcsMode = "computed";
-        }
+        wlan: StandardHostEx {
+		parameters:
+			@display(p=250,400,row,100;q=queue);
+			mac.typename = EtherMac;
+			encap.typename = EtherEncap;
 
-        antennaMobility: AntennaMobility if withAntennaMobility == true {
-            parameters:
-                @display("p=100,200");
-                mobilityModule = "^.mobility";
-        }
+    			mac.csmacdSupport = true;
+    			mac.address = "auto";
+    			mac.promiscuous= true;
+    			mac.duplexMode = true;
+
+    			mac.fcsMode= "declared";
+
+    			*.interfaceTableModule = default(absPath(interfaceTableModule));
+
+    			mac.txQueueLimit= 1000;
+    			mac.queueModule= "";
+
+    			//EtherEncap
+    			numEthInterfaces = default(0);
+
+    			*.macTableModule = default(absPath(".macTable"));
+
+    			//encap.fcsMode = "computed";
+
+    			//Ipv4
+    			ipv4.crcMode= "declared";
+
+    			forwarding = false;
+    			multicastForwarding = false;
+
+    			*.routingTableModule = default(absPath(".routingTable"));
+    			*.arpModule = default(absPath(".arp"));
+    			*.icmpModule = default(absPath(".icmp"));
+
+    			//Tcp
+    			tcp.crcMode = "declared";
+    	}
+       // antennaMobility: AntennaMobility if withAntennaMobility == true {
+        //    parameters:
+         //       @display("p=100,200");
+         //       mobilityModule = "^.mobility";
+       // }
 
          radioDriver[numRadios]: RadioDriver {
             parameters:
@@ -69,12 +102,12 @@ module Car extends PlainVehicle like INetworkNode
 
     connections allowunconnected:
 
- 	//for i=0..sizeof(radioIn)-1 {
-           //radioIn[i] --> { @display("m=s"); } --> wlan[i].radioIn;
+ 	for i=0..sizeof(radioIn)-1 {
+           radioIn[i] --> { @display("m=s"); } --> wlan[i].ethg++;
 
             wlan[0].upperLayerOut --> radioDriver[0].lowerLayerIn;
             wlan[0].upperLayerIn <-- radioDriver[0].lowerLayerOut;
-        //}
+        }
           
 
         radioDriver[0].upperLayer <--> vanetza.radioDriverData;

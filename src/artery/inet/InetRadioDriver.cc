@@ -13,6 +13,7 @@
 #include <inet/linklayer/common/UserPriorityTag_m.h>
 #include <inet/linklayer/ieee80211/mac/Ieee80211Mac.h>
 #include <inet/linklayer/ethernet/EtherMac.h>
+#include <inet/linklayer/ethernet/EtherMacBase.h>
 #include <mutex>
 #include <iostream>
 
@@ -65,7 +66,7 @@ void InetRadioDriver::initialize(int stage)
 		});
 	} else if (stage == inet::InitStages::INITSTAGE_LINK_LAYER_2) {
 		auto properties = new RadioDriverProperties();
-		//properties->LinkLayerAddress = convert(mLinkLayer->getAddress());
+		properties->LinkLayerAddress = convert(mLinkLayer->getMacAddress());
 		indicateProperties(properties);
 	}
 }
@@ -73,9 +74,9 @@ void InetRadioDriver::initialize(int stage)
 void InetRadioDriver::receiveSignal(cComponent* source, simsignal_t signal, double value, cObject*)
 {
 std::cout << "InetRadioDriver::receiveSignal" << std::endl;
-	if (signal == VanetRx::ChannelLoadSignal) {
-		emit(RadioDriverBase::ChannelLoadSignal, value);
-	}
+	//if (signal == VanetRx::ChannelLoadSignal) {
+	//	emit(RadioDriverBase::ChannelLoadSignal, value);
+	//}
 }
 
 void InetRadioDriver::handleMessage(cMessage* msg)
