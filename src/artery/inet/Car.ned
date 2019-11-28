@@ -9,6 +9,7 @@ import inet.linklayer.contract.IWiredInterface;
 import inet.mobility.contract.IMobility;
 import inet.networklayer.common.InterfaceTable;
 import inet.linklayer.contract.IEthernetInterface;
+import inet.networklayer.configurator.ipv4.Ipv4NetworkConfigurator;
 
 module Car extends PlainVehicle like INetworkNode
 {
@@ -19,12 +20,12 @@ module Car extends PlainVehicle like INetworkNode
         @statistic[posX](source="xCoord(mobilityPos(mobilityStateChanged))"; record=vector?);
         @statistic[posY](source="yCoord(mobilityPos(mobilityStateChanged))"; record=vector?);
         bool withAntennaMobility = default(false);
-        *.interfaceTableModule = default(absPath(".interfaceTable"));
+        //*.interfaceTableModule = default(absPath(".interfaceTableModule"));
         **.mobilityModule = default(absPath(".mobility"));
 	int numRadios = default(1);
 
     gates:
-        input radioIn[numRadios] @directIn;
+        inout radioIn[numRadios] @directIn;
         inout pppg[] @labels(PPPFrame-conn);
         inout ethg[] @labels(EtherFrame-conn);
 
@@ -47,7 +48,7 @@ module Car extends PlainVehicle like INetworkNode
 
     			mac.fcsMode= "declared";
 
-    			*.interfaceTableModule = default(absPath(interfaceTableModule));
+    			*.interfaceTableModule = default(absPath(".interfaceTable"));
 
     			mac.txQueueLimit= 1000;
     			mac.queueModule= "";
@@ -61,11 +62,12 @@ module Car extends PlainVehicle like INetworkNode
 
     			//Ipv4
     			ipv4.crcMode= "declared";
+			*.configurator.networkConfiguratorModule = "";
 
     			forwarding = false;
     			multicastForwarding = false;
 
-    			*.routingTableModule = default(absPath(".routingTable"));
+    			*.routingTableModule = default(absPath(".ipv4.routingTable"));
     			*.arpModule = default(absPath(".arp"));
     			*.icmpModule = default(absPath(".icmp"));
 
@@ -81,7 +83,7 @@ module Car extends PlainVehicle like INetworkNode
          radioDriver[numRadios]: RadioDriver {
             parameters:
                 @display("p=250,300,row,100");
-                macModule = ".wlan[" + string(index) + "].mac";
+                macModule = ".wlan[" + string(index) + "].eth[" +string(index) + "].mac";
         }
 
         vanetza: Vanetza {
@@ -103,10 +105,11 @@ module Car extends PlainVehicle like INetworkNode
     connections allowunconnected:
 
  	for i=0..sizeof(radioIn)-1 {
-           radioIn[i] --> { @display("m=s"); } --> wlan[i].ethg++;
+           //radioIn[i] --> { @display("m=s"); } --> wlan[i].ethg++;
+	     radioIn[i] <--> wlan[i].ethg++;
 
-            wlan[0].upperLayerOut --> radioDriver[0].lowerLayerIn;
-            wlan[0].upperLayerIn <-- radioDriver[0].lowerLayerOut;
+            wlan[i].upperLayerOut --> radioDriver[i].lowerLayerIn;
+            wlan[i].upperLayerIn <-- radioDriver[i].lowerLayerOut;
         }
           
 
